@@ -10772,6 +10772,9 @@ msgstr "yttre/ inre"
 msgid "inner wall/outer wall/inner wall"
 msgstr "innervägg/yttervägg/innervägg"
 
+msgid "inner wall/outer wall/inner wall/inner wall"
+msgstr "innervägg/yttervägg/innervägg/innervägg"
+
 msgid "Print infill first"
 msgstr "Printa fyllningen först"
 

@@ -10715,6 +10715,9 @@ msgstr "外墙/内墙"
 msgid "inner wall/outer wall/inner wall"
 msgstr "内墙/外墙/内墙"
 
+msgid "inner wall/outer wall/inner wall/inner wall"
+msgstr "内墙/外墙/内墙/内墙"
+
 msgid "Print infill first"
 msgstr "首先打印填充"
 

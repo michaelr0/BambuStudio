@@ -10521,6 +10521,9 @@ msgstr ""
 msgid "inner wall/outer wall/inner wall"
 msgstr ""
 
+msgid "inner wall/outer wall/inner wall/inner wall"
+msgstr ""
+
 msgid "Print infill first"
 msgstr ""
 

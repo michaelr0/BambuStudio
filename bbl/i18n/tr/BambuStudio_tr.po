@@ -10767,6 +10767,9 @@ msgstr "dış/iç"
 msgid "inner wall/outer wall/inner wall"
 msgstr "iç duvar/dış duvar/iç duvar"
 
+msgid "inner wall/outer wall/inner wall/inner wall"
+msgstr "iç duvar/dış duvar/iç duvar/iç duvar"
+
 msgid "Print infill first"
 msgstr "Önce dolguyu yazdır"
 

@@ -10775,6 +10775,9 @@ msgstr "buiten/binnen"
 msgid "inner wall/outer wall/inner wall"
 msgstr "binnenwand/buitenwand/binnenwand"
 
+msgid "inner wall/outer wall/inner wall/inner wall"
+msgstr "binnenwand/buitenwand/binnenwand/binnenwand"
+
 msgid "Print infill first"
 msgstr "Eerst infill afdrukken"
 

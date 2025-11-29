@@ -10764,6 +10764,9 @@ msgstr "esterno/interno"
 msgid "inner wall/outer wall/inner wall"
 msgstr "parete interna/parete esterna/parete interna"
 
+msgid "inner wall/outer wall/inner wall/inner wall"
+msgstr "parete interna/parete esterna/parete interna/parete interna"
+
 msgid "Print infill first"
 msgstr "Stampa prima il riempimento"
 

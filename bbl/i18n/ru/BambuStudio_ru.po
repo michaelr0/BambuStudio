@@ -10991,6 +10991,9 @@ msgstr "Внешний/Внутренний"
 msgid "inner wall/outer wall/inner wall"
 msgstr "Внутренний/Внешний/Внутренний"
 
+msgid "inner wall/outer wall/inner wall/inner wall"
+msgstr "Внутренний/Внешний/Внутренний/Внутренний"
+
 msgid "Print infill first"
 msgstr "Сначала печатать заполнение"
 
