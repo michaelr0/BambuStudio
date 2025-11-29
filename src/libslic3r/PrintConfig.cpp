@@ -1665,9 +1665,15 @@ namespace Slic3r
         def->enum_labels.push_back(L("inner/outer"));
         def->enum_labels.push_back(L("outer/inner"));
         def->enum_labels.push_back(L("inner wall/outer wall/inner wall"));
-        def->enum_labels.push_back(L("inner wall/outer wall/inner wall/inner wall"));
         def->mode = comAdvanced;
         def->set_default_value(new ConfigOptionEnum<WallSequence>(WallSequence::InnerOuter));
+
+        def = this->add("is_outer_second", coBool);
+        def->label = L("Print outer wall second");
+        def->tooltip = L("Order of wall. true means the outer wall will be printed after the first inner wall, false means outer wall will be second last printed wall. ");
+        def->category = L("Quality");
+        def->mode = comAdvanced;
+        def->set_default_value(new ConfigOptionBool{false});
 
         def = this->add("is_infill_first", coBool);
         def->label = L("Print infill first");

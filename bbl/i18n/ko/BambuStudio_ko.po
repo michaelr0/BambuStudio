@@ -10758,9 +10758,6 @@ msgstr "외부/내부"
 msgid "inner wall/outer wall/inner wall"
 msgstr "내벽/외벽/내벽"
 
-msgid "inner wall/outer wall/inner wall/inner wall"
-msgstr "내벽/외벽/내벽/내벽"
-
 msgid "Print infill first"
 msgstr "먼저 채우기 출력"
 

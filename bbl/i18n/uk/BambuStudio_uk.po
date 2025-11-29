@@ -10724,9 +10724,6 @@ msgstr "зовнішня/внутрішня"
 msgid "inner wall/outer wall/inner wall"
 msgstr "внутрішня стінка/зовнішня стінка/внутрішня стінка"
 
-msgid "inner wall/outer wall/inner wall/inner wall"
-msgstr "внутрішня стінка/зовнішня стінка/внутрішня стінка/внутрішня стінка"
-
 msgid "Print infill first"
 msgstr "Друкувати заповнення спочатку"
 

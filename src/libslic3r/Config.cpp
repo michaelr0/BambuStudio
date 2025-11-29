@@ -953,6 +953,7 @@ namespace Slic3r
         json j;
         std::list<std::string> different_settings_append;
         std::string new_support_style;
+        std::string is_outer_second;
         std::string is_infill_first;
         std::string get_wall_sequence;
         bool is_project_settings = false;
@@ -1108,6 +1109,9 @@ namespace Slic3r
                             {
                                 different_settings_append.push_back("is_infill_first");
                                 is_infill_first = "true";
+
+                                // different_settings_append.push_back("is_outer_second");
+                                // is_outer_second = "true";
                             }
                         }
                     }
@@ -1186,6 +1190,12 @@ namespace Slic3r
                     opt->value = smsTreeHybrid;
                 }
 
+                if (!is_outer_second.empty())
+                {
+                    ConfigOptionBool *opt = this->option<ConfigOptionBool>("is_outer_second", true);
+                    opt->value = true;
+                }
+
                 if (!is_infill_first.empty())
                 {
                     ConfigOptionBool *opt = this->option<ConfigOptionBool>("is_infill_first", true);
@@ -1245,6 +1255,8 @@ namespace Slic3r
                         if (diff_key == "support_type")
                             index = 0;
                         else if (diff_key == "support_style")
+                            index = 0;
+                        else if (diff_key == "is_outer_second")
                             index = 0;
                         else if (diff_key == "is_infill_first")
                             index = 0;

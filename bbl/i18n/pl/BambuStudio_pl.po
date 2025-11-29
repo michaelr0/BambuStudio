@@ -10796,9 +10796,6 @@ msgstr "zewnętrzna/wewnętrzna"
 msgid "inner wall/outer wall/inner wall"
 msgstr "wewnętrzna/zewnętrzna/wewnętrzna"
 
-msgid "inner wall/outer wall/inner wall/inner wall"
-msgstr "wewnętrzna/zewnętrzna/wewnętrzna/wewnętrzna"
-
 msgid "Print infill first"
 msgstr "Drukuj najpierw wypełnienie"
 

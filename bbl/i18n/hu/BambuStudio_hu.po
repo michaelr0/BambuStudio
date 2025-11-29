@@ -10770,9 +10770,6 @@ msgstr "külső/belső"
 msgid "inner wall/outer wall/inner wall"
 msgstr "belső fal/külső fal/belső fal"
 
-msgid "inner wall/outer wall/inner wall/inner wall"
-msgstr "belső fal/külső fal/belső fal/belső fal"
-
 msgid "Print infill first"
 msgstr "Kitöltés a falak előtt"
 

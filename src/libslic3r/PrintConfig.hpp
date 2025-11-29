@@ -147,7 +147,6 @@ namespace Slic3r
         InnerOuter,
         OuterInner,
         InnerOuterInner,
-        InnerOuterInnerInner,
         Count,
     };
     // BBS
@@ -993,7 +992,7 @@ public:                                                                         
         // Total number of perimeters.
         ((ConfigOptionInt, wall_loops))((ConfigOptionFloat, minimum_sparse_infill_area))((ConfigOptionInt, solid_infill_filament))((ConfigOptionFloat, internal_solid_infill_line_width))((ConfigOptionFloatsNullable, internal_solid_infill_speed))
         // Detect thin walls.
-        ((ConfigOptionBool, detect_thin_wall))((ConfigOptionFloat, top_surface_line_width))((ConfigOptionInt, top_shell_layers))((ConfigOptionFloat, top_shell_thickness))((ConfigOptionFloatsNullable, top_surface_speed))((ConfigOptionFloatsOrPercentsNullable, small_perimeter_speed))((ConfigOptionFloatsNullable, small_perimeter_threshold))((ConfigOptionFloatsOrPercentsNullable, vertical_shell_speed))((ConfigOptionInt, top_color_penetration_layers))((ConfigOptionInt, bottom_color_penetration_layers))((ConfigOptionBool, infill_instead_top_bottom_surfaces))((ConfigOptionEnum<WallSequence>, wall_sequence))
+        ((ConfigOptionBool, detect_thin_wall))((ConfigOptionFloat, top_surface_line_width))((ConfigOptionInt, top_shell_layers))((ConfigOptionFloat, top_shell_thickness))((ConfigOptionFloatsNullable, top_surface_speed))((ConfigOptionFloatsOrPercentsNullable, small_perimeter_speed))((ConfigOptionFloatsNullable, small_perimeter_threshold))((ConfigOptionFloatsOrPercentsNullable, vertical_shell_speed))((ConfigOptionInt, top_color_penetration_layers))((ConfigOptionInt, bottom_color_penetration_layers))((ConfigOptionBool, infill_instead_top_bottom_surfaces))((ConfigOptionEnum<WallSequence>, wall_sequence))((ConfigOptionBool, is_outer_second))
         // BBS
         ((ConfigOptionBoolsNullable, enable_overhang_speed))((ConfigOptionFloatsNullable, overhang_1_4_speed))((ConfigOptionFloatsNullable, overhang_2_4_speed))((ConfigOptionFloatsNullable, overhang_3_4_speed))((ConfigOptionFloatsNullable, overhang_4_4_speed))((ConfigOptionBoolsNullable, enable_height_slowdown))((ConfigOptionFloatsNullable, slowdown_start_height))((ConfigOptionFloatsNullable, slowdown_start_speed))((ConfigOptionFloatsNullable, slowdown_start_acc))((ConfigOptionFloatsNullable, slowdown_end_height))((ConfigOptionFloatsNullable, slowdown_end_speed))((ConfigOptionFloatsNullable, slowdown_end_acc))((ConfigOptionFloatOrPercent, sparse_infill_anchor))((ConfigOptionFloatOrPercent, sparse_infill_anchor_max))
         // OrcaSlicer
@@ -1080,7 +1079,7 @@ public:                                                                         
         // BBS: project filaments
         ((ConfigOptionFloats, filament_colour_new))
         // BBS: not in any preset, calculated before slicing
-        ((ConfigOptionBool, has_prime_tower))((ConfigOptionFloatsNullable, nozzle_volume))((ConfigOptionPoints, start_end_points))((ConfigOptionEnum<TimelapseType>, timelapse_type))((ConfigOptionFloat, default_jerk))((ConfigOptionFloat, outer_wall_jerk))((ConfigOptionFloat, inner_wall_jerk))((ConfigOptionFloat, infill_jerk))((ConfigOptionFloat, top_surface_jerk))((ConfigOptionFloat, initial_layer_jerk))((ConfigOptionFloat, travel_jerk))((ConfigOptionBool, is_infill_first))
+        ((ConfigOptionBool, has_prime_tower))((ConfigOptionFloatsNullable, nozzle_volume))((ConfigOptionPoints, start_end_points))((ConfigOptionEnum<TimelapseType>, timelapse_type))((ConfigOptionFloat, default_jerk))((ConfigOptionFloat, outer_wall_jerk))((ConfigOptionFloat, inner_wall_jerk))((ConfigOptionFloat, infill_jerk))((ConfigOptionFloat, top_surface_jerk))((ConfigOptionFloat, initial_layer_jerk))((ConfigOptionFloat, travel_jerk))((ConfigOptionBool, is_outer_second))((ConfigOptionBool, is_infill_first))
         // BBS: move from PrintObjectConfig
         ((ConfigOptionBool, independent_support_layer_height))((ConfigOptionBool, top_z_overrides_xy_distance))((ConfigOptionBool, exclude_object))((ConfigOptionPercents, filament_shrink))((ConfigOptionFloats, grab_length))((ConfigOptionFloats, filament_velocity_adaptation_factor))
         // BBS

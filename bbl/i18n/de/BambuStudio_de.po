@@ -10774,9 +10774,6 @@ msgstr "außen/innen"
 msgid "inner wall/outer wall/inner wall"
 msgstr "innen/außen/innen"
 
-msgid "inner wall/outer wall/inner wall/inner wall"
-msgstr "innen/außen/innen/innen"
-
 msgid "Print infill first"
 msgstr "Zuerst die Füllung drucken"
 

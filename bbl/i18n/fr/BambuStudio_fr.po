@@ -10756,9 +10756,6 @@ msgstr "ext./int."
 msgid "inner wall/outer wall/inner wall"
 msgstr "int/ ext/ int"
 
-msgid "inner wall/outer wall/inner wall/inner wall"
-msgstr "int/ ext/ int/ int"
-
 msgid "Print infill first"
 msgstr "Remplissage en premier"
 
