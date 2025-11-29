@@ -1948,169 +1948,168 @@ static void fuzzy_extrusion_line(Arachne::ExtrusionLine& ext_lines, double fuzzy
                     // go to the next perimeter to continue scanning for external walls in the same island
                     position = arr_i + 1;
                 }
-            }
-            else if (ordered_extrusions.size() > 2)
-            {                                               // 3 walls minimum needed to do inner outer inner ordering
-                int position = 0;                           // index to run the re-ordering for multiple external perimeters in a single island.
-                int arr_i = 0;                              // index to run through the walls
-                int outer, first_internal, second_internal; // allocate index values
-                // run the re-ordering for all wall loops in the same island
-                while (position < ordered_extrusions.size())
-                {
-                    outer = first_internal = second_internal = -1; // initialise all index values to -1
-                    // run through the walls to get the index values that need re-ordering until the first one for each
-                    // is found. Start at "position" index to enable the for loop to iterate for multiple external
-                    // perimeters in a single island
-                    for (arr_i = position; arr_i < ordered_extrusions.size(); ++arr_i)
+                else if (ordered_extrusions.size() > 2)
+                {                                               // 3 walls minimum needed to do inner outer inner ordering
+                    int position = 0;                           // index to run the re-ordering for multiple external perimeters in a single island.
+                    int arr_i = 0;                              // index to run through the walls
+                    int outer, first_internal, second_internal; // allocate index values
+                    // run the re-ordering for all wall loops in the same island
+                    while (position < ordered_extrusions.size())
                     {
-                        switch (ordered_extrusions[arr_i].extrusion->inset_idx)
+                        outer = first_internal = second_internal = -1; // initialise all index values to -1
+                        // run through the walls to get the index values that need re-ordering until the first one for each
+                        // is found. Start at "position" index to enable the for loop to iterate for multiple external
+                        // perimeters in a single island
+                        for (arr_i = position; arr_i < ordered_extrusions.size(); ++arr_i)
                         {
-                        case 0: // external perimeter
-                            if (outer == -1)
-                                outer = arr_i;
-                            break;
-                        case 1: // first internal wall
-                            if (first_internal == -1 && arr_i > outer && outer != -1)
-                                first_internal = arr_i;
-                            break;
-                        case 2: // second internal wall
-                            if (ordered_extrusions[arr_i].extrusion->inset_idx == 2 && second_internal == -1 &&
-                                arr_i > first_internal && outer != -1)
-                                second_internal = arr_i;
-                            break;
+                            switch (ordered_extrusions[arr_i].extrusion->inset_idx)
+                            {
+                            case 0: // external perimeter
+                                if (outer == -1)
+                                    outer = arr_i;
+                                break;
+                            case 1: // first internal wall
+                                if (first_internal == -1 && arr_i > outer && outer != -1)
+                                    first_internal = arr_i;
+                                break;
+                            case 2: // second internal wall
+                                if (ordered_extrusions[arr_i].extrusion->inset_idx == 2 && second_internal == -1 &&
+                                    arr_i > first_internal && outer != -1)
+                                    second_internal = arr_i;
+                                break;
+                            }
+                            if (outer > -1 && first_internal > -1 && second_internal > -1)
+                                break; // found all three perimeters to re-order
                         }
                         if (outer > -1 && first_internal > -1 && second_internal > -1)
-                            break; // found all three perimeters to re-order
+                        { // found perimeters to re-order?
+                            const auto temp = ordered_extrusions[second_internal];
+                            ordered_extrusions[second_internal] = ordered_extrusions[first_internal];
+                            ordered_extrusions[first_internal] = ordered_extrusions[outer];
+                            ordered_extrusions[outer] = temp;
+                        }
+                        else
+                            break; // did not find any more candidates to re-order, so stop the while loop early
+                        // go to the next perimeter to continue scanning for external walls in the same island
+                        position = arr_i + 1;
                     }
-                    if (outer > -1 && first_internal > -1 && second_internal > -1)
-                    { // found perimeters to re-order?
-                        const auto temp = ordered_extrusions[second_internal];
-                        ordered_extrusions[second_internal] = ordered_extrusions[first_internal];
-                        ordered_extrusions[first_internal] = ordered_extrusions[outer];
-                        ordered_extrusions[outer] = temp;
-                    }
-                    else
-                        break; // did not find any more candidates to re-order, so stop the while loop early
-                    // go to the next perimeter to continue scanning for external walls in the same island
-                    position = arr_i + 1;
                 }
             }
+
+            if (ExtrusionEntityCollection extrusion_coll = traverse_extrusions(*this, ordered_extrusions); !extrusion_coll.empty())
+                this->loops->append(extrusion_coll);
+
+            const coord_t spacing = (total_perimeters.size() == 1) ? ext_perimeter_spacing2 : perimeter_spacing;
+
+            // collapse too narrow infill areas
+            const auto min_perimeter_infill_spacing = coord_t(solid_infill_spacing * (1. - INSET_OVERLAP_TOLERANCE));
+            // append infill areas to fill_surfaces
+            add_infill_contour_for_arachne(infill_contour, loop_number, ext_perimeter_spacing, perimeter_spacing, min_perimeter_infill_spacing, spacing, false);
+        }
+    }
+
+    // expand the top expoly and determine whether to enable top one wall feature
+    bool PerimeterGenerator::should_enable_top_one_wall(const ExPolygons &original_expolys, ExPolygons &top)
+    {
+        coord_t perimeter_width = this->perimeter_flow.scaled_width();
+        coord_t ext_perimeter_spacing = this->ext_perimeter_flow.scaled_spacing();
+
+        auto get_expolygs_area = [](const ExPolygons &expolys) -> double
+        {
+            return std::accumulate(expolys.begin(), expolys.end(), (double)(0), [](double val, const ExPolygon &expoly)
+                                   { return val + expoly.area(); });
+        };
+
+        // BBS: filter small area and extend top surface a bit to hide the wall line
+        double min_width_top_surface = (this->object_config->top_area_threshold / 100) * std::max(ext_perimeter_spacing / 2.0, perimeter_width / 2.0);
+        auto shrunk_top = offset_ex(top, -min_width_top_surface);
+        double shrunk_area = get_expolygs_area(shrunk_top);
+        double original_area = get_expolygs_area(original_expolys);
+
+        if (shrunk_area / (original_area + EPSILON) < 0.1 || original_area < scale_(1) * scale_(1))
+            top.clear();
+        else
+            top = offset_ex(shrunk_top, min_width_top_surface + perimeter_width);
+        return !top.empty();
+    }
+
+    bool PerimeterGeneratorLoop::is_internal_contour() const
+    {
+        // An internal contour is a contour containing no other contours
+        if (!this->is_contour)
+            return false;
+        for (const PerimeterGeneratorLoop &loop : this->children)
+            if (loop.is_contour)
+                return false;
+        return true;
+    }
+
+    std::vector<Polygons> PerimeterGenerator::generate_lower_polygons_series(float width)
+    {
+        float nozzle_diameter = print_config->nozzle_diameter.get_at(config->wall_filament - 1);
+        float start_offset = -0.5 * width;
+        float end_offset = 0.5 * nozzle_diameter;
+
+        assert(overhang_sampling_number >= 3);
+        // generate offsets
+        std::vector<float> offset_series;
+        offset_series.reserve(2);
+
+        offset_series.push_back(start_offset + 0.5 * (end_offset - start_offset) / (overhang_sampling_number - 1));
+        offset_series.push_back(end_offset);
+        std::vector<Polygons> lower_polygons_series;
+        if (this->lower_slices == NULL)
+        {
+            return lower_polygons_series;
         }
 
-        if (ExtrusionEntityCollection extrusion_coll = traverse_extrusions(*this, ordered_extrusions); !extrusion_coll.empty())
-            this->loops->append(extrusion_coll);
-
-        const coord_t spacing = (total_perimeters.size() == 1) ? ext_perimeter_spacing2 : perimeter_spacing;
-
-        // collapse too narrow infill areas
-        const auto min_perimeter_infill_spacing = coord_t(solid_infill_spacing * (1. - INSET_OVERLAP_TOLERANCE));
-        // append infill areas to fill_surfaces
-        add_infill_contour_for_arachne(infill_contour, loop_number, ext_perimeter_spacing, perimeter_spacing, min_perimeter_infill_spacing, spacing, false);
-    }
-}
-
-// expand the top expoly and determine whether to enable top one wall feature
-bool PerimeterGenerator::should_enable_top_one_wall(const ExPolygons &original_expolys, ExPolygons &top)
-{
-    coord_t perimeter_width = this->perimeter_flow.scaled_width();
-    coord_t ext_perimeter_spacing = this->ext_perimeter_flow.scaled_spacing();
-
-    auto get_expolygs_area = [](const ExPolygons &expolys) -> double
-    {
-        return std::accumulate(expolys.begin(), expolys.end(), (double)(0), [](double val, const ExPolygon &expoly)
-                               { return val + expoly.area(); });
-    };
-
-    // BBS: filter small area and extend top surface a bit to hide the wall line
-    double min_width_top_surface = (this->object_config->top_area_threshold / 100) * std::max(ext_perimeter_spacing / 2.0, perimeter_width / 2.0);
-    auto shrunk_top = offset_ex(top, -min_width_top_surface);
-    double shrunk_area = get_expolygs_area(shrunk_top);
-    double original_area = get_expolygs_area(original_expolys);
-
-    if (shrunk_area / (original_area + EPSILON) < 0.1 || original_area < scale_(1) * scale_(1))
-        top.clear();
-    else
-        top = offset_ex(shrunk_top, min_width_top_surface + perimeter_width);
-    return !top.empty();
-}
-
-bool PerimeterGeneratorLoop::is_internal_contour() const
-{
-    // An internal contour is a contour containing no other contours
-    if (!this->is_contour)
-        return false;
-    for (const PerimeterGeneratorLoop &loop : this->children)
-        if (loop.is_contour)
-            return false;
-    return true;
-}
-
-std::vector<Polygons> PerimeterGenerator::generate_lower_polygons_series(float width)
-{
-    float nozzle_diameter = print_config->nozzle_diameter.get_at(config->wall_filament - 1);
-    float start_offset = -0.5 * width;
-    float end_offset = 0.5 * nozzle_diameter;
-
-    assert(overhang_sampling_number >= 3);
-    // generate offsets
-    std::vector<float> offset_series;
-    offset_series.reserve(2);
-
-    offset_series.push_back(start_offset + 0.5 * (end_offset - start_offset) / (overhang_sampling_number - 1));
-    offset_series.push_back(end_offset);
-    std::vector<Polygons> lower_polygons_series;
-    if (this->lower_slices == NULL)
-    {
+        // offset expolygon to generate series of polygons
+        for (int i = 0; i < offset_series.size(); i++)
+        {
+            lower_polygons_series.emplace_back(offset(*this->lower_slices, float(scale_(offset_series[i]))));
+        }
         return lower_polygons_series;
     }
 
-    // offset expolygon to generate series of polygons
-    for (int i = 0; i < offset_series.size(); i++)
+    PerimeterRegion::PerimeterRegion(const LayerRegion &layer_region) : region(&layer_region.region())
     {
-        lower_polygons_series.emplace_back(offset(*this->lower_slices, float(scale_(offset_series[i]))));
-    }
-    return lower_polygons_series;
-}
-
-PerimeterRegion::PerimeterRegion(const LayerRegion &layer_region) : region(&layer_region.region())
-{
-    this->expolygons = to_expolygons(layer_region.slices.surfaces);
-    this->bbox = get_extents(this->expolygons);
-}
-
-bool PerimeterRegion::has_compatible_perimeter_regions(const PrintRegionConfig &config, const PrintRegionConfig &other_config)
-{
-    return config.fuzzy_skin == other_config.fuzzy_skin && config.fuzzy_skin_thickness == other_config.fuzzy_skin_thickness && config.fuzzy_skin_point_distance == other_config.fuzzy_skin_point_distance;
-}
-
-void PerimeterRegion::merge_compatible_perimeter_regions(PerimeterRegions &perimeter_regions)
-{
-    if (perimeter_regions.size() <= 1)
-    {
-        return;
+        this->expolygons = to_expolygons(layer_region.slices.surfaces);
+        this->bbox = get_extents(this->expolygons);
     }
 
-    PerimeterRegions perimeter_regions_merged;
-    for (auto it_curr_region = perimeter_regions.begin(); it_curr_region != perimeter_regions.end();)
+    bool PerimeterRegion::has_compatible_perimeter_regions(const PrintRegionConfig &config, const PrintRegionConfig &other_config)
     {
-        PerimeterRegion current_merge = *it_curr_region;
-        auto it_next_region = std::next(it_curr_region);
-        for (; it_next_region != perimeter_regions.end() && has_compatible_perimeter_regions(it_next_region->region->config(), it_curr_region->region->config());
-             ++it_next_region)
+        return config.fuzzy_skin == other_config.fuzzy_skin && config.fuzzy_skin_thickness == other_config.fuzzy_skin_thickness && config.fuzzy_skin_point_distance == other_config.fuzzy_skin_point_distance;
+    }
+
+    void PerimeterRegion::merge_compatible_perimeter_regions(PerimeterRegions &perimeter_regions)
+    {
+        if (perimeter_regions.size() <= 1)
         {
-            Slic3r::append(current_merge.expolygons, std::move(it_next_region->expolygons));
-            current_merge.bbox.merge(it_next_region->bbox);
+            return;
         }
 
-        if (std::distance(it_curr_region, it_next_region) > 1)
+        PerimeterRegions perimeter_regions_merged;
+        for (auto it_curr_region = perimeter_regions.begin(); it_curr_region != perimeter_regions.end();)
         {
-            current_merge.expolygons = union_ex(current_merge.expolygons);
+            PerimeterRegion current_merge = *it_curr_region;
+            auto it_next_region = std::next(it_curr_region);
+            for (; it_next_region != perimeter_regions.end() && has_compatible_perimeter_regions(it_next_region->region->config(), it_curr_region->region->config());
+                 ++it_next_region)
+            {
+                Slic3r::append(current_merge.expolygons, std::move(it_next_region->expolygons));
+                current_merge.bbox.merge(it_next_region->bbox);
+            }
+
+            if (std::distance(it_curr_region, it_next_region) > 1)
+            {
+                current_merge.expolygons = union_ex(current_merge.expolygons);
+            }
+
+            perimeter_regions_merged.emplace_back(std::move(current_merge));
+            it_curr_region = it_next_region;
         }
 
-        perimeter_regions_merged.emplace_back(std::move(current_merge));
-        it_curr_region = it_next_region;
+        perimeter_regions = perimeter_regions_merged;
     }
-
-    perimeter_regions = perimeter_regions_merged;
-}
 }
